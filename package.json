@@ -1,0 +1,13 @@
+{
+  "name": "ratelimit-x",
+  "version": "1.0.0",
+  "description": "Zero-dependency rate limiting for Node.js — Token Bucket, Sliding Window, Fixed Window, Leaky Bucket",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": { ".": "./src/index.js" },
+  "scripts": { "test": "node --test test/test.mjs" },
+  "keywords": ["rate-limit", "rate-limiting", "token-bucket", "sliding-window", "leaky-bucket", "fixed-window", "throttle", "zero-dependency"],
+  "license": "MIT",
+  "author": "sulthonzh",
+  "repository": { "type": "git", "url": "https://github.com/sulthonzh/ratelimit-x.git" }
+}
