@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'fs';
 import {
   TokenBucket, SlidingWindow, FixedWindow, LeakyBucket,
   RateLimiter, createRateLimiter,
+  VERSION,
 } from '../src/index.js';
 
 // Helper: controllable mock clock
@@ -345,4 +347,15 @@ test('createRateLimiter factory returns RateLimiter', () => {
   const rl = createRateLimiter('token-bucket', { capacity: 10, tokensPerSecond: 5 });
   assert.equal(rl.tryConsume('test', 5), true);
   assert.equal(rl.size, 1);
+});
+
+// ─── VERSION ─────────────────────────────────────────────────
+
+test('VERSION follows semver format', () => {
+  assert.match(VERSION, /^\d+\.\d+\.\d+$/);
+});
+
+test('VERSION matches package.json', () => {
+  const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+  assert.equal(VERSION, pkg.version);
 });

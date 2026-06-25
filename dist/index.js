@@ -13,6 +13,8 @@
  * MIT License — Copyright (c) 2026 sulthonzh
  */
 
+const VERSION = '1.0.0';
+
 // ─── Token Bucket ────────────────────────────────────────────
 
 class TokenBucket {
@@ -434,5 +436,6 @@ exports.LeakyBucket = LeakyBucket;
 exports.RateLimiter = RateLimiter;
 exports.SlidingWindow = SlidingWindow;
 exports.TokenBucket = TokenBucket;
+exports.VERSION = VERSION;
 exports.createRateLimiter = createRateLimiter;
 //# sourceMappingURL=index.js.map

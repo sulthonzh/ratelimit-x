@@ -11,6 +11,8 @@
  * MIT License — Copyright (c) 2026 sulthonzh
  */
 
+const VERSION = '1.0.0';
+
 // ─── Token Bucket ────────────────────────────────────────────
 
 class TokenBucket {
@@ -427,5 +429,5 @@ function createRateLimiter(strategy, options) {
   return new RateLimiter(strategy, options);
 }
 
-export { FixedWindow, LeakyBucket, RateLimiter, SlidingWindow, TokenBucket, createRateLimiter };
+export { FixedWindow, LeakyBucket, RateLimiter, SlidingWindow, TokenBucket, VERSION, createRateLimiter };
 //# sourceMappingURL=index.mjs.map

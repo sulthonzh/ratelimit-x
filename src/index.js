@@ -11,7 +11,7 @@
  * MIT License — Copyright (c) 2026 sulthonzh
  */
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 // ─── Token Bucket ────────────────────────────────────────────
 
