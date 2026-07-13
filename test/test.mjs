@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkgPath = join(__dirname, '..', 'package.json');
 import {
   TokenBucket, SlidingWindow, FixedWindow, LeakyBucket,
   RateLimiter, createRateLimiter,
@@ -356,6 +362,6 @@ test('VERSION follows semver format', () => {
 });
 
 test('VERSION matches package.json', () => {
-  const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
   assert.equal(VERSION, pkg.version);
 });
