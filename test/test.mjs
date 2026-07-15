@@ -355,6 +355,90 @@ test('createRateLimiter factory returns RateLimiter', () => {
   assert.equal(rl.size, 1);
 });
 
+// ─── Async consume paths (waiting) ───────────────────────────
+
+test('SlidingWindow consume waits then resolves', async () => {
+  // Use real clock with short window to test async consume path
+  const sw = new SlidingWindow({ limit: 3, windowMs: 100 });
+  assert.equal(sw.tryConsume(3), true); // fill up
+  const start = Date.now();
+  await sw.consume(1); // should wait ~100ms for window to slide
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed >= 50, `consume should have waited (elapsed=${elapsed}ms)`);
+});
+
+test('SlidingWindow available reflects current estimate', () => {
+  const sw = new SlidingWindow({ limit: 10, windowMs: 1000 });
+  sw.tryConsume(4);
+  assert.equal(sw.available, 6);
+  sw.tryConsume(3);
+  assert.equal(sw.available, 3);
+});
+
+test('FixedWindow consume waits then resolves', async () => {
+  const fw = new FixedWindow({ limit: 3, windowMs: 100 });
+  assert.equal(fw.tryConsume(3), true); // fill up
+  const start = Date.now();
+  await fw.consume(1); // should wait for window reset
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed >= 50, `consume should have waited (elapsed=${elapsed}ms)`);
+});
+
+test('LeakyBucket add waits then resolves', async () => {
+  const lb = new LeakyBucket({ capacity: 3, leakPerSecond: 100 });
+  assert.equal(lb.tryAdd(3), true); // fill up
+  const start = Date.now();
+  await lb.add(1); // should wait ~10ms for 1 unit to leak (100/s)
+  const elapsed = Date.now() - start;
+  assert.ok(lb.level > 0 && lb.level <= 3);
+});
+
+test('LeakyBucket consume alias works like add', async () => {
+  const lb = new LeakyBucket({ capacity: 5, leakPerSecond: 100 });
+  await lb.consume(2);
+  assert.equal(lb.level, 2);
+});
+
+// ─── RateLimiter additional coverage ────────────────────────
+
+test('RateLimiter consume() delegates async', async () => {
+  const rl = new RateLimiter('token-bucket', { capacity: 5, tokensPerSecond: 1000 });
+  rl.tryConsume('k', 5); // exhaust
+  const start = Date.now();
+  await rl.consume('k', 1); // should wait ~1ms for refill
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed < 2000, 'should not take too long');
+});
+
+test('RateLimiter reset() on missing key is a no-op', () => {
+  const rl = new RateLimiter('fixed-window', { limit: 5, windowMs: 1000 });
+  rl.tryConsume('a', 2);
+  rl.reset('nonexistent'); // should not throw
+  assert.equal(rl.tryConsume('a', 3), true); // 'a' still has 3 remaining
+});
+
+test('RateLimiter clear() removes all keys', () => {
+  const rl = new RateLimiter('fixed-window', { limit: 5, windowMs: 1000 });
+  rl.tryConsume('a');
+  rl.tryConsume('b');
+  assert.equal(rl.size, 2);
+  rl.clear();
+  assert.equal(rl.size, 0);
+});
+
+test('RateLimiter toJSON() serializes all limiters', () => {
+  const rl = new RateLimiter('token-bucket', { capacity: 5, tokensPerSecond: 1 });
+  rl.tryConsume('user1', 2);
+  rl.tryConsume('user2', 1);
+  const json = rl.toJSON();
+  assert.equal(Object.keys(json).length, 2);
+  assert.ok('user1' in json);
+  assert.ok('user2' in json);
+  // Each value should be a valid limiter state
+  assert.ok(json.user1.tokens !== undefined);
+  assert.ok(json.user2.tokens !== undefined);
+});
+
 // ─── VERSION ─────────────────────────────────────────────────
 
 test('VERSION follows semver format', () => {
