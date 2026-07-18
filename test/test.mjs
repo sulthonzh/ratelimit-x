@@ -441,6 +441,76 @@ test('RateLimiter toJSON() serializes all limiters', () => {
 
 // ─── VERSION ─────────────────────────────────────────────────
 
+// ─── Coverage Gap: Validation throw branches ─────────────
+
+test('TokenBucket tryConsume throws on non-positive amount', () => {
+  const tb = new TokenBucket({ capacity: 10, tokensPerSecond: 1 });
+  assert.throws(() => tb.tryConsume(0), TypeError);
+  assert.throws(() => tb.tryConsume(-1), TypeError);
+});
+
+test('TokenBucket consume throws on non-positive amount', async () => {
+  const tb = new TokenBucket({ capacity: 10, tokensPerSecond: 1 });
+  await assert.rejects(() => tb.consume(0), TypeError);
+  await assert.rejects(() => tb.consume(-5), TypeError);
+});
+
+test('TokenBucket consume throws when amount exceeds capacity', async () => {
+  const tb = new TokenBucket({ capacity: 5, tokensPerSecond: 1 });
+  await assert.rejects(() => tb.consume(10), RangeError);
+});
+
+test('SlidingWindow tryConsume throws on non-positive amount', () => {
+  const sw = new SlidingWindow({ limit: 5, windowMs: 1000 });
+  assert.throws(() => sw.tryConsume(0), TypeError);
+  assert.throws(() => sw.tryConsume(-1), TypeError);
+});
+
+test('SlidingWindow consume throws on non-positive amount', async () => {
+  const sw = new SlidingWindow({ limit: 5, windowMs: 1000 });
+  await assert.rejects(() => sw.consume(0), TypeError);
+  await assert.rejects(() => sw.consume(-3), TypeError);
+});
+
+test('FixedWindow tryConsume throws on non-positive amount', () => {
+  const fw = new FixedWindow({ limit: 5, windowMs: 1000 });
+  assert.throws(() => fw.tryConsume(0), TypeError);
+  assert.throws(() => fw.tryConsume(-2), TypeError);
+});
+
+test('FixedWindow consume throws on non-positive amount', async () => {
+  const fw = new FixedWindow({ limit: 5, windowMs: 1000 });
+  await assert.rejects(() => fw.consume(0), TypeError);
+  await assert.rejects(() => fw.consume(-1), TypeError);
+});
+
+test('LeakyBucket constructor throws on negative initial level', () => {
+  assert.throws(() => new LeakyBucket({ capacity: 10, leakPerSecond: 1, level: -1 }), RangeError);
+});
+
+test('LeakyBucket constructor throws on initial level exceeding capacity', () => {
+  assert.throws(() => new LeakyBucket({ capacity: 5, leakPerSecond: 1, level: 10 }), RangeError);
+});
+
+test('LeakyBucket tryAdd throws on non-positive amount', () => {
+  const lb = new LeakyBucket({ capacity: 10, leakPerSecond: 1 });
+  assert.throws(() => lb.tryAdd(0), TypeError);
+  assert.throws(() => lb.tryAdd(-1), TypeError);
+});
+
+test('LeakyBucket add throws on non-positive amount', async () => {
+  const lb = new LeakyBucket({ capacity: 10, leakPerSecond: 1 });
+  await assert.rejects(() => lb.add(0), TypeError);
+  await assert.rejects(() => lb.add(-5), TypeError);
+});
+
+test('LeakyBucket add throws when amount exceeds capacity', async () => {
+  const lb = new LeakyBucket({ capacity: 5, leakPerSecond: 1 });
+  await assert.rejects(() => lb.add(10), RangeError);
+});
+
+// ─── VERSION ─────────────────────────────────────────────────
+
 test('VERSION follows semver format', () => {
   assert.match(VERSION, /^\d+\.\d+\.\d+$/);
 });
