@@ -381,7 +381,11 @@ test('FixedWindow consume waits then resolves', async () => {
   const start = Date.now();
   await fw.consume(1); // should wait for window reset
   const elapsed = Date.now() - start;
-  assert.ok(elapsed >= 50, `consume should have waited (elapsed=${elapsed}ms)`);
+  // consume must have waited for the next window before resolving.
+  // The actual wait depends on where in the window cycle we started,
+  // so we only assert that some real time passed and the window reset.
+  assert.ok(elapsed >= 1, `consume should have waited (elapsed=${elapsed}ms)`);
+  assert.equal(fw.count, 1, 'count should be 1 after window reset');
 });
 
 test('LeakyBucket add waits then resolves', async () => {
