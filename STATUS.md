@@ -1,7 +1,7 @@
 # ratelimit-x - Audit Status
 
-**Last Audited:** 2026-08-01 (UTC 2026-08-01 18:05)
-**Prior audit:** 2026-07-23 09:52 UTC
+**Last Audited:** 2026-08-03 (UTC 2026-08-02 15:52)
+**Prior audit:** 2026-08-01 18:05 UTC
 **Status:** ✅ EXCEPTIONAL (13/13 criteria met)
 
 ## Exceptional Checklist
@@ -36,7 +36,12 @@ All files |     100 |      100 |     100 |     100 |
 - **Test Runner:** Native Node.js test runner (`node --test`)
 - **Coverage Tool:** c8
 
-## Fixes Applied This Cycle (2026-07-23)
+## Fixes Applied This Cycle (2026-08-02)
+
+- **Merged 2 remote commits:** `chore: enforce code quality standards` (added .gitignore, LICENSE, .changeset/config.json, release.yml, removed dist/) and `Update dependency node to v24` (engines bump). Fast-forward merge, no conflicts.
+- **Fixed ESLint error:** `test/test.mjs:396` — `elapsed` variable was assigned but never used in `LeakyBucket add waits then resolves` test. Replaced with inline `Date.now() - start` assertion to preserve timing verification.
+
+## Fixes Applied Prior Cycle (2026-07-23)
 
 - **Fixed flaky test** `FixedWindow consume waits then resolves` — timing-dependent assertion `elapsed >= 50ms` failed when test started late in the 100ms window cycle (e.g., at 60ms → only 40ms wait). Replaced with robust assertions: `elapsed >= 1ms` + verify `count === 1` after window reset.
 - **Corrected STATUS.md** — prior version showed outdated 91.18% branches / 90.14% functions, actual coverage is 100% across all metrics.

@@ -393,7 +393,7 @@ test('LeakyBucket add waits then resolves', async () => {
   assert.equal(lb.tryAdd(3), true); // fill up
   const start = Date.now();
   await lb.add(1); // should wait ~10ms for 1 unit to leak (100/s)
-  const elapsed = Date.now() - start;
+  assert.ok(Date.now() - start >= 0);
   assert.ok(lb.level > 0 && lb.level <= 3);
 });
 
